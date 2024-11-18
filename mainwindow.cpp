@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "clients.h"
 #include"connection.h"
+#include "HistoriqueDialog.h"
 #include <QMessageBox>
 #include<QString>
 #include <QFrame>
@@ -14,12 +15,15 @@
 #include <QPdfWriter>
 #include <QPageSize>
 #include <QPainter>
+#include "messagerie.h"
 
 MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    QMainWindow(parent),ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    messagerieWidget = new Messagerie(this); // Create Messagerie instance
+    ui->stackedWidget->addWidget(messagerieWidget); // Add the Messagerie widget to the stackedWidget
+
     // Appel de la fonction afficher() de l’objet `clients ctmp` pour initialiser la vue tableView
     ui->tableView->setModel(ctmp.afficher());
     ui->tableView->setModel(ctmp.afficher(true, fid));
@@ -38,7 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
     buttonsearch->setFixedSize(iconSize + 5, iconSize + 5); // Ajout de 16 pixels pour les bordures
 
     // Positionner le bouton sur la fenêtre
-    int buttonX = 340; // Position X dans l'image partagée
+    int buttonX = 200; // Position X dans l'image partagée
     int buttonY = 78; // Position Y dans l'image partagée
     buttonsearch->move(buttonX, buttonY);
     // Définir le style du bouton pour qu'il soit plat
@@ -55,14 +59,33 @@ MainWindow::MainWindow(QWidget *parent) :
     buttonpdff->setIconSize(QSize(pdfIconSize, pdfIconSize));
     buttonpdff->setFixedSize(pdfIconSize + 5, pdfIconSize + 5);
 
-    int buttonXpdf = 1080;
+    int buttonXpdf = 930;
     int buttonYpdf = 20;
     buttonpdff->move(buttonXpdf, buttonYpdf);
 
     buttonpdff->setStyleSheet("QPushButton { background-color: transparent; border: none; }");
     connect(buttonpdff, &QPushButton::clicked, this, &::MainWindow::on_buttonpdff_clicked);
+    connect(ui->historiqueButton, &QPushButton::clicked, this, &MainWindow::on_historiqueButton_clicked);
+    // Connexion du bouton historique
+    connect(ui->historiqueButton, &QPushButton::clicked, this, [this]() {
+        HistoriqueDialog dialog(this);
+        dialog.exec();
+    });
+
+
+   connect(ui->pushButton_45, &QPushButton::clicked, this, [this]() { navigateToPage(0); });
+    connect(ui->pushButton_46, &QPushButton::clicked, this, [this]() { navigateToPage(3); });
+    connect(ui->pushButton_49, &QPushButton::clicked, this, [this]() { navigateToPage(2); });
+    connect(ui->pushButton_64, &QPushButton::clicked, this, [this]() { navigateToPage(2); });
+   connect(ui->pushButton_28, &QPushButton::clicked, this, [this]() { navigateToPage(0); });
+    connect(ui->pushButton_19, &QPushButton::clicked, this, [this]() { navigateToPage(1); });
+   connect(ui->pushButton_68, &QPushButton::clicked, this, [this]() { navigateToPage(4); });
+
+
+
 
 }
+
 
 MainWindow::~MainWindow()
 {
@@ -120,7 +143,7 @@ void MainWindow::on_pushButton_9_clicked()
     int telephone = ui->lineEdit_33->text().toInt();
 
 
-    QString telephone_str  = QString::number(telephone);
+    /*QString telephone_str  = QString::number(telephone);
     if (telephone >= 0 && telephone_str.length() != 8) {
         QMessageBox::warning(this, "Invalid Phone Number", "Phone number must be 8 digits.");
     return;
@@ -131,9 +154,9 @@ void MainWindow::on_pushButton_9_clicked()
     }
 
     if (age <= 0 ||point_fed<= 0) {
-        QMessageBox::warning(this, "Invalid Salary", "Salary must be a positive value.");
+        QMessageBox::warning(this, "Invalid fidelity point", "fidelity point must be a positive value.");
         return;
-    }
+    }*/
 
 
     clients c(id,nom_c, prenom_c, genre, email, age, adresse, ty_peau, taille, poids, point_fed,telephone);
@@ -161,7 +184,7 @@ void MainWindow::on_pushButton_9_clicked()
 
 void MainWindow::on_pushButton_12_clicked()
 {
-    int id = ui->lineEdit_29->text().toInt();
+    int id = ui->lineEdit_36->text().toInt();
     clients a;
     a.setId(id);
     bool test = a.supprimer(id);
@@ -174,6 +197,7 @@ void MainWindow::on_pushButton_12_clicked()
                                  tr("Suppression effectuée\n"
                                     "Click Cancel to exit."), QMessageBox::Cancel);
 
+        ui->lineEdit_36->clear();
         ui->lineEdit_30->clear();
         ui->lineEdit_31->clear();
         ui->lineEdit_32->clear();
@@ -276,7 +300,7 @@ void MainWindow::on_modifier_clicked()
     clients c(id, nom_c, prenom_c, genre, email, age, adresse, ty_peau, taille, poids, point_fed, telephone);
 
     // Attempt to modify the client record
-    if (c.modifier()) {
+    if (c.modifier(id, nom_c, prenom_c, adresse, genre, email, age, ty_peau, taille, poids, point_fed, telephone)) {
         QMessageBox::information(this, tr("OK"), tr("Modification effectuée\nCliquez sur Annuler pour sortir."), QMessageBox::Cancel);
 
         // Update the table view to reflect changes
@@ -299,7 +323,8 @@ void MainWindow::on_modifier_clicked()
 
     void MainWindow::on_buttonsearch_clicked()
     {
-        QString searchid = ui->SEARCH->text();
+
+        int searchid = ui->SEARCH->text().toInt();
         QSqlQueryModel* model = ctmp.rechercherclientParID(searchid);
 
         if (model->rowCount() > 0)
@@ -390,3 +415,11 @@ void MainWindow::on_modifier_clicked()
         QMessageBox::information(this, tr("PDF Export"), tr("PDF file created successfully!"));
     }
 
+    void MainWindow::on_historiqueButton_clicked() {
+        HistoriqueDialog dialog(this);
+        dialog.exec();  // Ouvre la boîte de dialogue en mode modal
+    }
+    void MainWindow::navigateToPage(int pageIndex)
+    {
+        ui->stackedWidget->setCurrentIndex(pageIndex);
+    }

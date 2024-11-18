@@ -18,6 +18,7 @@ private:
     float poids;
     int point_fed;
     int telephone;
+    void enregistrerHistorique(const QString &action, const QString &nomClient, int idClient);  // Ajoutez cette déclaration
 
 public:
 
@@ -26,9 +27,13 @@ public:
     bool Ajouter();
     // Declaration of the methods
     QSqlQueryModel* afficher(bool sortByFidelity=false, bool fid=true);
-    QSqlQueryModel* rechercherclientParID(const QString& id);
+    QSqlQueryModel* rechercherclientParID(int id);
     bool supprimer(int id);
-    bool modifier();
+    bool modifier(int id, const QString& nom, const QString& prenom, const QString& adresse,
+             const QString& genre, const QString& email, int age, const QString& ty_peau,
+             double taille, double poids, int pointFid, int telephone);
+    void AjouterClient(const QString &clientID, const QString &clientName);
+    //bool modifier();
     // getters
     int getId() { return id; }
     QString getNom_c() { return nom_c; }

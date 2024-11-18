@@ -1,7 +1,11 @@
 #include "clients.h"
+#include "historiquedialog.h"
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDebug>
+#include <QFile>
+#include <QTextStream>
+#include <QDateTime>
 
 
 
@@ -29,24 +33,26 @@ bool clients::Ajouter()
 
 
 
-    query.prepare("INSERT INTO CLIENTS (NOM_C,PRENOM_C,GENRE, EMAIL,AGE,ADRESSE,TY_PEAU,TAILLE,POIDS,POINT_FED,TELEPHONE) VALUES (:nom_c,:prenom_c,:genre,:email,:age ,:adresse,:ty_peau,:taille,:poids,:point_fed,:telephone)");
+    query.prepare("INSERT INTO CLIENTS (NOM_C,PRENOM_C,EMAIL,TELEPHONE,ADRESSE,TY_PEAU,TAILLE,POIDS,GENRE,POINT_FED,AGE) VALUES (:nom_c,:prenom_c,:email,:telephone ,:adresse,:ty_peau,:taille,:poids,:genre,:point_fed,:age)");
     query.bindValue(":nom_c", nom_c);
     query.bindValue(":prenom_c", prenom_c);
-    query.bindValue(":genre", genre);
     query.bindValue(":email", email);
-    query.bindValue(":age", age);
+    query.bindValue(":telephone", telephone);
     query.bindValue(":adresse", adresse);
     query.bindValue(":ty_peau",ty_peau);
     query.bindValue(":taille",taille);
     query.bindValue(":poids",poids);
+    query.bindValue(":genre", genre);
     query.bindValue(":point_fed",point_fed);
-    query.bindValue(":telephone", telephone);
+    query.bindValue(":age", age);
 
     if (!query.exec()) {
         qDebug() << "Erreur lors de l'ajout :" << query.lastError().text();
         return false;
     }
-
+    // Obtenir l'ID du dernier client ajouté
+    id = query.lastInsertId().toInt();
+    enregistrerHistorique("Ajout       ",     nom_c,       id);
     return true;
 }
 QSqlQueryModel *clients::afficher(bool sortByFidelity, bool fid) {
@@ -91,44 +97,105 @@ bool clients::supprimer(int id) {
         qDebug() << "Aucune suppression n'a été effectuée. Assurez-vous que l'ID existe.";
         return false;
     }
+ enregistrerHistorique("Suppression", nom_c, id);
 
 return true;
 }
 
-// Modify client information
-bool clients::modifier()
-{
+bool clients::modifier(int id, const QString& nom, const QString& prenom, const QString& adresse,
+                       const QString& genre, const QString& email, int age, const QString& ty_peau,
+                       double taille, double poids, int pointFid, int telephone) {
     QSqlQuery query;
-    query.prepare("UPDATE clients SET nom_c = :nom_c, prenom_c = :prenom_c, adresse = :adresse, "
-                  "genre = :genre, email = :email, age = :age, ty_peau = :ty_peau, "
-                  "taille = :taille, poids = :poids, point_fed = :point_fed, telephone = :telephone "
-                  "WHERE id_cl = :id_cl");
+    QString sql = "UPDATE clients SET ";
+    bool first = true;
 
-    query.bindValue(":nom_c", nom_c);
-    query.bindValue(":prenom_c", prenom_c);
-    query.bindValue(":adresse", adresse);
-    query.bindValue(":genre", genre);
-    query.bindValue(":email", email);
-    query.bindValue(":age", age);
-    query.bindValue(":ty_peau", ty_peau);
-    query.bindValue(":taille", taille);
-    query.bindValue(":poids", poids);
-    query.bindValue(":point_fed", point_fed);
-    query.bindValue(":telephone", telephone);
-    query.bindValue(":id_cl", id);  // Only as a condition, not in the SET clause
+    // Construire dynamiquement la requête en ajoutant uniquement les champs non vides
+    if (!nom.isEmpty()) {
+        sql += "nom_c = :nom_c";
+        first = false;
+    }
+    if (!prenom.isEmpty()) {
+        if (!first) sql += ", ";
+        sql += "prenom_c = :prenom_c";
+        first = false;
+    }
+    if (!adresse.isEmpty()) {
+        if (!first) sql += ", ";
+        sql += "adresse = :adresse";
+        first = false;
+    }
+    if (!genre.isEmpty()) {
+        if (!first) sql += ", ";
+        sql += "genre = :genre";
+        first = false;
+    }
+    if (!email.isEmpty()) {
+        if (!first) sql += ", ";
+        sql += "email = :email";
+        first = false;
+    }
+    if (age > 0) {
+        if (!first) sql += ", ";
+        sql += "age = :age";
+        first = false;
+    }
+    if (!ty_peau.isEmpty()) {
+        if (!first) sql += ", ";
+        sql += "ty_peau = :ty_peau";
+        first = false;
+    }
+    if (taille > 0) {
+        if (!first) sql += ", ";
+        sql += "taille = :taille";
+        first = false;
+    }
+    if (poids > 0) {
+        if (!first) sql += ", ";
+        sql += "poids = :poids";
+        first = false;
+    }
+    if (pointFid > 0) {
+        if (!first) sql += ", ";
+        sql += "point_fed = :point_fed";
+        first = false;
+    }
+    if (telephone > 0) {
+        if (!first) sql += ", ";
+        sql += "telephone = :telephone";
+    }
 
-    // Execute the query and check for errors
+    sql += " WHERE id_cl = :ID";
+    query.prepare(sql);
+
+    // Lier les valeurs aux paramètres uniquement si elles ne sont pas vides ou nulles
+    if (!nom.isEmpty()) query.bindValue(":nom_c", nom);
+    if (!prenom.isEmpty()) query.bindValue(":prenom_c", prenom);
+    if (!adresse.isEmpty()) query.bindValue(":adresse", adresse);
+    if (!genre.isEmpty()) query.bindValue(":genre", genre);
+    if (!email.isEmpty()) query.bindValue(":email", email);
+    if (age > 0) query.bindValue(":age", age);
+    if (!ty_peau.isEmpty()) query.bindValue(":ty_peau", ty_peau);
+    if (taille > 0) query.bindValue(":taille", taille);
+    if (poids > 0) query.bindValue(":poids", poids);
+    if (pointFid > 0) query.bindValue(":point_fed", pointFid);
+    if (telephone > 0) query.bindValue(":telephone", telephone);
+    query.bindValue(":ID", id);
+
+    // Exécuter la requête
     if (!query.exec()) {
-        qDebug() << "Update failed:" << query.lastError().text();
+        qDebug() << "Erreur lors de la mise à jour :" << query.lastError().text();
         return false;
     }
+    enregistrerHistorique("Modification   ",    nom_c,     id);
+
 
     return true;
 }
 
 
 
-QSqlQueryModel* clients::rechercherclientParID(const QString& searchId)
+
+QSqlQueryModel* clients::rechercherclientParID(int searchId)
 {
     QSqlQueryModel* model = new QSqlQueryModel();
     QSqlQuery query;
@@ -144,4 +211,12 @@ QSqlQueryModel* clients::rechercherclientParID(const QString& searchId)
     }
     return model;
 }
-
+void clients::enregistrerHistorique(const QString &action, const QString &nomClient, int idClient) {
+    QFile file("historique_clients.txt");
+    if (file.open(QIODevice::Append | QIODevice::Text)) {
+        QTextStream out(&file);
+        QString dateTime = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+        out << action << " - Client ID: " << idClient << ", Nom: " << nomClient << ", Date: " << dateTime << "\n";
+        file.close();
+    }
+}
