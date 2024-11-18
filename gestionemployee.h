@@ -1,23 +1,39 @@
 #ifndef GESTIONEMPLOYEE_H
 #define GESTIONEMPLOYEE_H
+
 #include <QString>
 #include <QtSql/QSqlQuery>
 #include <QtSql/QSqlQueryModel>
 
-
-class gestionemployee
-{
+class gestionemployee {
 public:
+    // Default constructor
     gestionemployee();
-    gestionemployee(int, QString, QString, int, QString, QString, QString, QString, double, int);
+
+    // Parameterized constructor with new attributes
+    gestionemployee(int ID, QString Nom_E, QString Prenom_E, int Num_Tel_E, QString Mail_E,
+                    QString Sexe, QString Adresse_E, QString Role, double Salaire,
+                    int Point_fed_E, QString MDP, QString QUESTION, QString REPONSE);
+
+    // Method to add a new employee
     bool Ajouter();
-    QSqlQueryModel* Afficher(bool sortBySalary = false, bool ascending = true); // Updated Afficher function
-     QSqlQueryModel* rechercherEmployeParID(const QString& id);
-    //QSqlQueryModel* rechercherEmployeParID(const QString& id);
-    //QSqlQueryModel* Afficher();
-   // QSqlQueryModel* Afficher(bool ascending = true); // Default sorting is ascending
+
+    // Method to display employees with optional sorting
+    QSqlQueryModel* Afficher(bool sortBySalary = false, bool ascending = true);
+
+    // Method to search an employee by ID
+    QSqlQueryModel* rechercherEmployeParID(const QString& id);
+
+    // Method to delete an employee by ID
     bool supprimer(int ID);
-    bool modifier();
+
+    // Method to modify employee details
+    bool modifier(int id, const QString& nom, const QString& prenom, const QString& mail,
+                  const QString& adresse, int numTel, double salaire, const QString& role,
+                  int pointFidelite, const QString& sexe,
+                  const QString& mdp = "", const QString& question = "", const QString& reponse = "");
+
+    // Getters
     int getID() { return ID; }
     QString getNom_E() { return Nom_E; }
     QString getPrenom_E() { return Prenom_E; }
@@ -29,6 +45,12 @@ public:
     double getSalaire() { return Salaire; }
     int getPoint_fed_E() { return Point_fed_E; }
 
+    // Getters for new attributes
+    QString getMDP() { return MDP; }
+    QString getQUESTION() { return QUESTION; }
+    QString getREPONSE() { return REPONSE; }
+
+    // Setters
     void setID(int id) { ID = id; }
     void setNom_E(QString nom) { Nom_E = nom; }
     void setPrenom_E(QString prenom) { Prenom_E = prenom; }
@@ -39,8 +61,12 @@ public:
     void setSexe(QString sexe) { Sexe = sexe; }
     void setSalaire(double s) { Salaire = s; }
     void setPoint_fed_E(int points) { Point_fed_E = points; }
-/*public slots:
-    void handTableViewActivated();*/
+
+    // Setters for new attributes
+    void setMDP(QString mdp) { MDP = mdp; }
+    void setQUESTION(QString question) { QUESTION = question; }
+    void setREPONSE(QString reponse) { REPONSE = reponse; }
+
 private:
     int ID;
     QString Nom_E;
@@ -53,5 +79,11 @@ private:
     double Salaire;
     int Point_fed_E;
 
+    // New attributes
+    QString MDP;       // Password
+    QString QUESTION;  // Security question
+    QString REPONSE;   // Security answer
 };
+
 #endif // GESTIONEMPLOYEE_H
+ 

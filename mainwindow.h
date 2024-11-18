@@ -1,9 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
 #include <QMainWindow>
 #include <QLabel>
 #include "gestionemployee.h"
+#include "todolist.h"
 
 namespace Ui {
 class MainWindow;
@@ -36,10 +36,14 @@ private slots:
 
     void on_pushButton_17_clicked();
     void on_buttonpdf_clicked();
-    //void rechercherParID();
+    void navigateToPage(int pageIndex);
 
-    void on_pushButton_18_clicked();
+    //void rechercherParID();
     //void drawPieChart();
+
+
+    void on_pushButton_3_clicked();
+    void showTodoList(); // Slot pour afficher la Todolist
 
 
 private:
@@ -51,6 +55,8 @@ private:
     bool sortBySalary;
     QSqlQueryModel *model;
     QLabel *m_statisticsLabel;
+    TodoList *todoListWindow;
+
 
 
 };

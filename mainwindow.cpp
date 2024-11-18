@@ -2,7 +2,6 @@
 #include "ui_mainwindow.h" 
 #include"gestionemployee.h"
 #include"connection.h"
-#include"genderstatisticswidget.h"
 #include<QMessageBox>
 #include<QString>
 #include <QFrame>
@@ -16,18 +15,21 @@
 #include <QPageSize>
 #include <QPainter>
 #include <QStackedWidget>
+#include"todolist.h"
+
 
 
 
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),todoListWindow(new TodoList)
 
 {
     ui->setupUi(this);
     ui->tableView->setModel(Etmp.Afficher(true, ascending));
     connect(ui->pushButton_17, &QPushButton::clicked, this, &MainWindow::on_pushButton_17_clicked);
+     connect(ui->pushButton_3, &QPushButton::clicked, this, &MainWindow::showTodoList);
 
     // Créer un QPushButton et ajouter une image
     QPushButton* buttonImage = new QPushButton(ui->page_2);
@@ -89,8 +91,10 @@ MainWindow::MainWindow(QWidget *parent) :
     loadImage("C:\\Users\\the cast\\Desktop\\image\\WhatsApp Image 2024-11-10 à 18.51.31_e66bd550.jpg", ui->label_8);
     loadImage("C:\\Users\\the cast\\Desktop\\image\\WhatsApp Image 2024-11-10 à 18.51.31_e66bd550.jpg", ui->label_19);
     loadImage("C:\\Users\\ESS\\OneDrive\\Documents\\rapport de stage\\interface\\Capture d’écran 2024-09-29 185850.png", ui->label_9);
-    loadImage("C:\\Users\\ESS\\Downloads\\Capture_d_écran_2024-10-20_063741-removebg-preview.png",ui->label_12);
-    loadImage("C:\\Users\\ESS\\Downloads\\add-removebg-preview.png",ui->label_13);
+    loadImage("C:\\Users\\the cast\\Downloads\\WhatsApp_Image_2024-11-10_à_18.51.32_aa7ae239-removebg-preview.png",ui->label_12);
+    loadImage("C:\\Users\\the cast\\Downloads\\WhatsApp_Image_2024-11-10_à_18.51.32_aa7ae239-removebg-preview.png",ui->label_34);
+    loadImage("C:\\Users\\the cast\\Downloads\\WhatsApp_Image_2024-11-10_à_18.51.32_06d2d704-removebg-preview.png",ui->label_13);
+    loadImage("C:\\Users\\the cast\\Downloads\\WhatsApp_Image_2024-11-10_à_18.51.32_06d2d704-removebg-preview.png",ui->label_35);
     loadImage("C:\\Users\\ESS\\Downloads\\Capture_d_écran_2024-10-20_141614-removebg-preview.png",ui->label_15);
     loadImage("C:\\Users\\ESS\\OneDrive\\Bureau\\icon employee\\A P P  I C O N 💕 _.jpeg",ui->label_16);
     loadImage("C:\\Users\\ESS\\OneDrive\\Bureau\\icon employee\\liist or task.png",ui->label_17);
@@ -118,85 +122,48 @@ void MainWindow::loadImage(const QString& imagePath, QLabel* label)
 void MainWindow::on_pushButton_5_clicked() {
     ui->stackedWidget->setCurrentIndex(1);
     int ID = ui->lineEdit_8->text().toInt();
-    QString Nom_E=ui->lineEdit_9->text();
-    QString Prenom_E=ui->lineEdit_10->text();
+    QString Nom_E = ui->lineEdit_9->text();
+    QString Prenom_E = ui->lineEdit_10->text();
     QString Mail_E = ui->lineEdit_11->text();
     QString Adresse_E = ui->lineEdit_13->text();
     int Num_Tel_E = ui->lineEdit_12->text().toInt();
     double Salaire = ui->lineEdit_17->text().toFloat();
-    QString Role=ui->comboBox_2->currentText();
+    QString Role = ui->comboBox_2->currentText();
     int Point_fed_E = ui->lineEdit_22->text().toInt();
-    QString Sexe=ui->comboBox->currentText();
+    QString Sexe = ui->comboBox->currentText();
 
-    QString Num_Tel_E_str  = QString::number(Num_Tel_E);
+    // New fields
+    QString MDP = ui->mdp->text();            // MDP field
+    QString QUESTION = ui->rolebox_3->currentText();  // Question field
+    QString REPONSE = ui->reponse->text();    // Response field
+
+    QString Num_Tel_E_str = QString::number(Num_Tel_E);
     if (Num_Tel_E >= 0 && Num_Tel_E_str.length() != 8) {
         QMessageBox::warning(this, "Invalid Phone Number", "Phone number must be 8 digits.");
         return;
     }
-    if(!Mail_E.contains("@")) {
+    if (!Mail_E.contains("@")) {
         QMessageBox::warning(this, "Invalid Email", "Please enter a valid email address.");
         return;
     }
 
-    if (Salaire <= 0 ||Point_fed_E<= 0) {
-        QMessageBox::warning(this, "Invalid Salary", "Salary must be a positive value.");
-        return;
-    }
 
+    // Pass new attributes to the constructor
+    gestionemployee E(ID, Nom_E, Prenom_E, Num_Tel_E, Mail_E, Sexe, Adresse_E, Role, Salaire, Point_fed_E, MDP, QUESTION, REPONSE);
 
-    gestionemployee  E(ID,Nom_E, Prenom_E, Num_Tel_E, Mail_E, Sexe, Adresse_E, Role, Salaire,Point_fed_E);
+    bool test = E.Ajouter();
 
-    bool test=E.Ajouter();
-
-if(test) {
-        QMessageBox::information(nullptr,QObject::tr("ok"),
-                                 QObject::tr("ajout effectué\n"
-                                             "click cancel to exit."),QMessageBox::Cancel);
+    if (test) {
+        QMessageBox::information(nullptr, QObject::tr("OK"),
+                                 QObject::tr("Ajout effectué\n"
+                                             "Click Cancel to exit."), QMessageBox::Cancel);
         ui->tableView->setModel(Etmp.Afficher(true, ascending));
-}else
-        QMessageBox:: critical(nullptr,QObject::tr("not ok"),
-                              QObject::tr("ajout non effectué\n"
-                                          "click cancel to exit."),QMessageBox::Cancel);
-
-
-};
-
-
-
-
-void MainWindow::on_pushButton_12_clicked()
-{
-    int id = ui->lineEdit_8->text().toInt();
-    gestionemployee a;
-    a.setID(id);
-    bool test = a.supprimer(id);
-
-    if(test) {
-        // Mettre à jour la vue du tableau
-        ui->tableView->setModel(Etmp.Afficher(true, ascending));
-        // Afficher un message de confirmation
-        QMessageBox::information(this, tr("OK"),
-                                 tr("Suppression effectuée\n"
-                                    "Click Cancel to exit."), QMessageBox::Cancel);
-        // Effacer les champs après la suppression
-        ui->lineEdit_8->clear();
-        ui->lineEdit_10->clear();
-        ui->lineEdit_11->clear();
-        ui->lineEdit_12->clear();
-        ui->lineEdit_13->clear();
-        ui->comboBox_2->clear();
-        ui->lineEdit_17->clear();
-        ui->comboBox->clear();
-        ui->lineEdit_22->clear();
     } else {
-        // Afficher un message d'erreur si la suppression a échoué
-        QMessageBox::critical(this, tr("NOT OK"),
-                              tr("Suppression non effectuée\n"
-                                 "Click Cancel to exit."), QMessageBox::Cancel);
+        QMessageBox::critical(nullptr, QObject::tr("Not OK"),
+                              QObject::tr("Ajout non effectué\n"
+                                          "Click Cancel to exit."), QMessageBox::Cancel);
+    }
 }
-
-}
-
 
 void MainWindow::on_tableView_activated(QModelIndex &index)
 {
@@ -212,7 +179,7 @@ void MainWindow::on_tableView_activated(QModelIndex &index)
     c.closeConnection();
     QSqlQuery qry;
 
-    qry.prepare("SELECT NOM_E, PRENOM_E, SEXE, MAIL_E, NUM_TEL_E, ADRESSE_E, ROLE, SALAIRE, POINT_FED_E FROM EMPLOYEE WHERE CIN_E = :ID");
+    qry.prepare("SELECT NOM_E, PRENOM_E, SEXE, MAIL_E, NUM_TEL_E, ADRESSE_E, ROLE, SALAIRE, POINT_FED_E, MDP, QUESTION, REPONSE FROM EMPLOYEE WHERE CIN_E = :ID");
     qry.bindValue(":ID", value);
 
     if(qry.exec())
@@ -228,10 +195,81 @@ void MainWindow::on_tableView_activated(QModelIndex &index)
             ui->lineEdit_17->setText(qry.value(7).toString());
             ui->comboBox->setCurrentText(qry.value(8).toString());
             ui->lineEdit_22->setText(qry.value(9).toString());
+
         }
     }
 
 }
+
+
+
+void MainWindow::on_pushButton_12_clicked() {
+    int id = ui->lineEdit_16->text().toInt();
+    gestionemployee a;
+    a.setID(id);
+    bool test = a.supprimer(id);
+
+    if (test) {
+        // Update the table view
+        ui->tableView->setModel(Etmp.Afficher(true, ascending));
+
+        // Show confirmation message
+        QMessageBox::information(this, tr("OK"),
+                                 tr("Suppression effectuée\n"
+                                    "Click Cancel to exit."), QMessageBox::Cancel);
+
+        // Clear fields after deletion
+        ui->lineEdit_16->clear(); // ID field
+        ui->lineEdit_10->clear(); // First Name field
+        ui->lineEdit_11->clear(); // Last Name field
+        ui->lineEdit_12->clear(); // Phone Number field
+        ui->lineEdit_13->clear(); // Address field
+        ui->comboBox_2->clear();  // Role field
+        ui->lineEdit_17->clear();  // Salary field
+        ui->comboBox->clear();      // Gender field
+        ui->lineEdit_22->clear();  // Points field
+
+        // Clear the new attributes fields
+        ui->mdp->clear();     // MDP field
+        ui->rolebox_3->clear(); // Security Question field
+        ui->reponse->clear();  // Response field
+    } else {
+        // Show error message if deletion failed
+        QMessageBox::critical(this, tr("NOT OK"),
+                              tr("Suppression non effectuée\n"
+                                 "Click Cancel to exit."), QMessageBox::Cancel);
+    }
+}
+
+void MainWindow::on_pushButton_6_clicked() {
+    // Retrieve updated values from the UI
+    int ID = ui->lineEdit_8->text().toInt();
+    QString Nom_E = ui->lineEdit_9->text();
+    QString Prenom_E = ui->lineEdit_10->text();
+    QString Mail_E = ui->lineEdit_11->text();
+    QString Adresse_E = ui->lineEdit_13->text();
+    int Num_Tel_E = ui->lineEdit_12->text().toInt();
+    double Salaire = ui->lineEdit_17->text().toFloat();
+    QString Role = ui->comboBox_2->currentText();
+    int Point_fed_E = ui->lineEdit_22->text().toInt();
+    QString Sexe = ui->comboBox->currentText();
+
+    // New fields
+    QString MDP = ui->mdp->text();            // MDP field
+    QString QUESTION = ui->rolebox_3->currentText();  // Question field
+    QString REPONSE = ui->reponse->text();    // Response field
+    gestionemployee E(ID, Nom_E, Prenom_E, Num_Tel_E, Mail_E, Sexe, Adresse_E, Role, Salaire, Point_fed_E, MDP, QUESTION, REPONSE);
+    // Attempt to modify the employee record
+    if (E.modifier(ID, Nom_E, Prenom_E, Mail_E, Adresse_E, Num_Tel_E, Salaire, Role, Point_fed_E, Sexe, MDP, QUESTION, REPONSE)) {
+        QMessageBox::information(this, tr("OK"), tr("Modification effectuée\nCliquez sur Annuler pour sortir."), QMessageBox::Cancel);
+
+        // Update the table view to reflect changes
+        ui->tableView->setModel(Etmp.Afficher(true, ascending));
+    } else {
+        QMessageBox::critical(this, tr("Erreur"), tr("Modification non effectuée\nCliquez sur Annuler pour sortir."), QMessageBox::Cancel);
+    }
+}
+
 
 
 void MainWindow::on_pushButton_9_clicked()
@@ -258,36 +296,7 @@ void MainWindow::on_pushButton_13_clicked()
 }
 
 
-void MainWindow::on_pushButton_6_clicked()
-{
 
-    // Retrieve updated values from the UI
-    int ID = ui->lineEdit_8->text().toInt();
-    QString Nom_E = ui->lineEdit_9->text();
-    QString Prenom_E = ui->lineEdit_10->text();
-    QString Mail_E = ui->lineEdit_11->text();
-    QString Adresse_E = ui->lineEdit_13->text();
-    int Num_Tel_E = ui->lineEdit_12->text().toInt();
-    double Salaire = ui->lineEdit_17->text().toFloat();
-    QString Role = ui->comboBox_2->currentText();
-    int Point_fed_E = ui->lineEdit_22->text().toInt();
-    QString Sexe = ui->comboBox->currentText();
-
-
-
-    // Create a gestionemployee object with the updated values
-    gestionemployee E(ID, Nom_E, Prenom_E, Num_Tel_E, Mail_E, Sexe, Adresse_E, Role, Salaire, Point_fed_E);
-
-    // Attempt to modify the employee record
-    if (E.modifier()) {
-        QMessageBox::information(this, tr("OK"), tr("Modification effectuée\nCliquez sur Annuler pour sortir."), QMessageBox::Cancel);
-
-        // Update the table view to reflect changes
-        ui->tableView->setModel(Etmp.Afficher(true, ascending));
-    } else {
-        QMessageBox::critical(this, tr("Erreur"), tr("Modification non effectuée\nCliquez sur Annuler pour sortir."), QMessageBox::Cancel);
-    }
-}
 
 void MainWindow::on_pushButton_17_clicked()
 {
@@ -472,7 +481,7 @@ void MainWindow::on_buttonpdf_clicked() {
 }
 
 // Example usage of the drawPieChart method*/
-void MainWindow::on_pushButton_18_clicked()
+/*void MainWindow::on_pushButton_18_clicked()
 {
     ui->stackedWidget->setCurrentIndex(2); // Aller à la page où tu veux afficher les stats
 
@@ -501,4 +510,79 @@ void MainWindow::on_pushButton_18_clicked()
     // Assure-toi que la page du `stackedWidget` a un layout pour l'ajouter
     QVBoxLayout *layout = new QVBoxLayout(ui->stackedWidget->widget(2));
     layout->addWidget(statsWidget);
+}*/
+
+void MainWindow::on_pushButton_3_clicked()
+{
+
 }
+void MainWindow::showTodoList() {
+    todoListWindow->show(); // Affiche la fenêtre de Todolist
+}
+
+void MainWindow::navigateToPage(int pageIndex)
+{
+    ui->stackedWidget->setCurrentIndex(pageIndex);
+}
+/*Method to create and display a pie chart
+void MainWindow::displayGenderDistribution() {
+    int maleCount = 0, femaleCount = 0;
+
+    // Execute the query to get gender data
+    QSqlQuery query("SELECT SEXE FROM employee");
+    if (query.exec()) {
+        while (query.next()) {
+            QString sexe = query.value(0).toString();
+            if (sexe == "M") {
+                maleCount++;
+            } else if (sexe == "F") {
+                femaleCount++;
+            }
+        }
+    } else {
+        qDebug() << "SQL Error:" << query.lastError().text();
+        return; // Exit if there's an SQL error
+    }
+
+    // Create a pie series for the chart
+    QPieSeries *series = new QPieSeries();
+    series->append("Male", maleCount);
+    series->append("Female", femaleCount);
+
+    // Create a chart
+    QChart *chart = new QChart();  // Declare and instantiate the chart object
+    chart->addSeries(series);
+    chart->setTitle("Employee Gender Distribution");
+
+    // Create a chart view
+    QChartView *chartView = new QChartView(chart);
+    chartView->setRenderHint(QPainter::Antialiasing);
+
+    // Ensure the widget at index 2 is valid
+    QWidget *statisticsPage = ui->stackedWidget->widget(2);
+    if (statisticsPage) {
+        // Clear existing layout if any
+        QLayout *existingLayout = statisticsPage->layout();
+        if (existingLayout) {
+            QLayoutItem *item;
+            while ((item = existingLayout->takeAt(0)) != nullptr) {
+                delete item->widget(); // Delete the widget
+                delete item; // Delete the layout item
+            }
+        }
+
+        // Set the new layout with the chart view
+        QVBoxLayout *layout = new QVBoxLayout(statisticsPage);
+        layout->addWidget(chartView);
+        statisticsPage->setLayout(layout);
+    } else {
+        qDebug() << "Statistics page not found!";
+    }
+}
+
+
+// Call this method to display the pie chart when needed
+void MainWindow::on_pushButton_18_clicked() {
+    displayGenderDistribution();
+    ui->stackedWidget->setCurrentIndex(2); // Switch to the statistics page
+}*/
