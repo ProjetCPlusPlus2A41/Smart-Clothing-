@@ -82,11 +82,50 @@ MainWindow::MainWindow(QWidget *parent) :
    connect(ui->pushButton_68, &QPushButton::clicked, this, [this]() { navigateToPage(4); });
 
 
-
+   if (A.connect_arduino() == 0) {
+       qDebug() << "Arduino connecté sur le port:" << A.getarduino_port_name();
+       QMessageBox::information(nullptr,QObject::tr("Arduino connecté sur le port:"),
+                                A.getarduino_port_name() ,QMessageBox::Cancel);
+   } else {
+       qDebug() << "Échec de la connexion à l'Arduino.";
+       QMessageBox::warning(nullptr,QObject::tr(""),"Échec de la connexion à l'Arduino.",QMessageBox::Cancel);
+   }
+     connect(A.get_serial(), &QSerialPort::readyRead, this, &MainWindow::readFromArduino);
 
 }
 
+void MainWindow::readFromArduino()
+{
+    QByteArray data = A.read_from_arduino();
+    QString ab = QString::fromUtf8(data).trimmed(); // Convertir les données en chaîne
 
+
+
+    qDebug() << "code reçu:" << ab;
+
+
+        if (ab==  "C")
+        {
+        QSqlQuery query;
+        query.prepare("UPDATE CLIENTS SET DISPONIBILITE ='PRESENT' WHERE ID_CL = 4");
+        query.exec();
+        ui->tableView->setModel(ctmp.afficher());
+
+        }
+        else
+        {
+            QSqlQuery query1;
+            query1.prepare("UPDATE CLIENTS SET DISPONIBILITE ='ABSENT' WHERE ID_CL = 4");
+            query1.exec();
+            ui->tableView->setModel(ctmp.afficher());
+
+                }
+
+
+
+
+
+}
 MainWindow::~MainWindow()
 {
     delete ui;
