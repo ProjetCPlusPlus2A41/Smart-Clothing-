@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "commande.h"
+#include "arduino.h"
+
 #include"connection.h"
 #include <QMessageBox>
 #include<QString>
@@ -51,43 +53,50 @@ MainWindow::~MainWindow()
 }
 
 
-///////////////////////////////////////////////////////////////////////
-
 void MainWindow::on_pushButton_5_clicked()
 {
+
+    Arduino A;
+
     // 1. Récupérer les valeurs depuis l'interface utilisateur
-       QString nomco = ui->lineEdit_9->text();
-       QDate dateco = ui->dateEdit->date();
-       QString modep = ui->CM_modep->currentText();
-       double prixco=ui->doubleSpinBox_1->value();
+    QString nomco = ui->lineEdit_9->text();
+    QDate dateco = ui->dateEdit->date();
+    QString modep = ui->CM_modep->currentText();
+    double prixco = ui->doubleSpinBox_1->value();
 
+    commande c(nomco, dateco, modep, prixco);
 
-       commande c(nomco,dateco,modep,prixco);
+    QByteArray dataToSend;
 
+    if (c.ajouter()) // Si l'ajout est réussi
+    {
+        QMessageBox::information(nullptr, QObject::tr("OK"), QObject::tr("Ajout effectué\nCliquez sur Annuler pour sortir."), QMessageBox::Cancel);
 
+        // Mettre à jour la tableView pour refléter l'ajout du nouveau client et calendrier
+        ui->tableView->setModel(ctmp.afficher());
+        QList<QDate> reservationDates = commande::getAllDates();
 
+        QTextCharFormat highlightFormat;
+        highlightFormat.setBackground(Qt::green);
 
-       if(c.ajouter())
-       {
-           QMessageBox::information(nullptr, QObject::tr("OK"), QObject::tr("Ajout effectué\nCliquez sur Annuler pour sortir."), QMessageBox::Cancel);
-           // Mettre à jour la tableView pour refléter l'ajout du nouveau client et calendrier
-           ui->tableView->setModel(ctmp.afficher());
-           QList<QDate> reservationDates = commande::getAllDates();
+        for (const QDate &date : reservationDates) {
+            ui->calendarWidget1->setDateTextFormat(date, highlightFormat);
+        }
 
-           QTextCharFormat highlightFormat;
-           highlightFormat.setBackground(Qt::green);
+        // Envoyer '1' à l'Arduino
+        dataToSend = "1";
+    }
+    else // Si l'ajout échoue
+    {
+        QMessageBox::critical(nullptr, QObject::tr("Erreur"), QObject::tr("Ajout non effectué\nCliquez sur Annuler pour sortir."), QMessageBox::Cancel);
 
-           for (const QDate &date : reservationDates) {
-               ui->calendarWidget1->setDateTextFormat(date, highlightFormat);
-           }
-       }
-       else
-       {
-           QMessageBox::critical(nullptr, QObject::tr("Erreur"), QObject::tr("Ajout non effectué\nCliquez sur Annuler pour sortir."), QMessageBox::Cancel);
-       }
+        // Envoyer '0' à l'Arduino
+        dataToSend = "0";
+    }
 
+    // Envoyer les données à l'Arduino
+    A.write_to_arduino(dataToSend);
 }
-
 
 
 

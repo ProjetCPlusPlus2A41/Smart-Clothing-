@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql charts svg network
+QT       += core gui sql charts svg network serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -27,6 +27,7 @@ INCLUDEPATH += $$PWD/Qt-QrCodeGenerator-main/src
 SOURCES += \
 $$PWD/Qt-QrCodeGenerator-main/src/QrCodeGenerator.cpp \
 $$PWD/Qt-QrCodeGenerator-main/src/qrcodegen/qrcodegen.cpp \
+    arduino.cpp \
     calendarwidget.cpp \
     commande.cpp \
         main.cpp \
@@ -39,6 +40,8 @@ $$PWD/Qt-QrCodeGenerator-main/src/qrcodegen/qrcodegen.cpp \
 HEADERS += \
 $$PWD/Qt-QrCodeGenerator-main/src/QrCodeGenerator.h \
 $$PWD/Qt-QrCodeGenerator-main/src/qrcodegen/qrcodegen.h \
+    ../Exercice2_QT_Arduino/Exercice2_QT_Arduino (1)/Exercice2_QT_Arduino/Atelier_Arduino_v2/arduino.h \
+    arduino.h \
     calendarwidget.h \
     commande.h \
         mainwindow.h \

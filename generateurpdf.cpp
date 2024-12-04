@@ -37,5 +37,5 @@ void GenerateurPDF::genererPDF(QSqlQueryModel* model, const QString& nomFichierP
     painter.drawRect(margin, margin + (rowCount + 1) * cellHeight, columnCount * cellWidth, cellHeight);
     painter.drawText(margin, margin + (rowCount + 1) * cellHeight, columnCount * cellWidth, cellHeight, Qt::AlignCenter, "Fin du document");
 
-    QMessageBox::information(nullptr, "PDF créé", "Le fichier PDF a été créé avec succès !");
+    QMessageBox::information(nullptr, "PDF créé", "Le fichier PDF a été créé avec succès !");//Affiche un message à l'utilisateur pour confirmer que le fichier PDF a été généré.
 }

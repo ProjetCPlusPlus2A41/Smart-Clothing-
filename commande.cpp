@@ -101,8 +101,8 @@ bool commande::supprimer(int id) {
 }
 
 QMap<QString, int> commande::statistiquesParType() {
-    QMap<QString, int> stats;
-    QSqlQuery query("SELECT MODE_P, COUNT(*) FROM COMMANDE GROUP BY MODE_P");
+    QMap<QString, int> stats;//creer un objet qmap nestockiw fyh les
+    QSqlQuery query("SELECT MODE_P, COUNT(*) FROM COMMANDE GROUP BY MODE_P");//Exécute une requête SQL sur la table COMMANDE
     while (query.next()) {
         QString type = query.value(0).toString();
         int count = query.value(1).toInt();
