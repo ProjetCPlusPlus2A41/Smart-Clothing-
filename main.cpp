@@ -1,11 +1,12 @@
 #include "mainwindow.h"
+#include "login.h"
 #include <QApplication>
 #include <QMessageBox>
 #include "connection.h"
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    MainWindow w;
+    login w; // Create an instance of the login window
     Connection c;
     bool test=c.createconnect();
     if(test)

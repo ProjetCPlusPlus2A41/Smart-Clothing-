@@ -46,6 +46,10 @@ private slots:
     void showTodoList(); // Slot pour afficher la Todolist
 
 
+    void on_pushButton_7_clicked();
+
+    void on_pushButton_20_clicked();
+
 private:
     Ui::MainWindow *ui;
     gestionemployee Etmp;

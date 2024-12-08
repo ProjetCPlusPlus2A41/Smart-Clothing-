@@ -86,7 +86,6 @@ QSqlQueryModel* gestionemployee::Afficher(bool sortBySalary, bool ascending) {
     model->setQuery(queryStr);
 
     // Set headers for the model
-    model->setHeaderData(0, Qt::Horizontal, QObject::tr("CIN")); // Assuming this is the ID
     model->setHeaderData(1, Qt::Horizontal, QObject::tr("Nom"));
     model->setHeaderData(2, Qt::Horizontal, QObject::tr("Prenom"));
     model->setHeaderData(3, Qt::Horizontal, QObject::tr("Telephone"));
