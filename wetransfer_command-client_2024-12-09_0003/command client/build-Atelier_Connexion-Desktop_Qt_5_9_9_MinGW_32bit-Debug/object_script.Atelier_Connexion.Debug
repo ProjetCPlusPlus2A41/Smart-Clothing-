@@ -1,0 +1,17 @@
+INPUT(
+./debug\QrCodeGenerator.o
+./debug\qrcodegen.o
+./debug\arduino.o
+./debug\calendarwidget.o
+./debug\commande.o
+./debug\main.o
+./debug\mainwindow.o
+./debug\connection.o
+./debug\generateurpdf.o
+./debug\generateurqrcode.o
+./debug\Emailsender.o
+./debug\qrc_logo.o
+./debug\moc_calendarwidget.o
+./debug\moc_mainwindow.o
+./debug\moc_Emailsender.o
+);
