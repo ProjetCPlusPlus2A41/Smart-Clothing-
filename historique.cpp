@@ -8,7 +8,7 @@
 #include <QTextStream>
 #include <QDateTime>
 #include <QtSql/QSqlQuery>
-
+#include <QDebug>
 HistoriqueDialog::HistoriqueDialog(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::HistoriqueDialog)

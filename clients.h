@@ -18,6 +18,7 @@ private:
     float poids;
     int point_fed;
     int telephone;
+
     void enregistrerHistorique(const QString &action, const QString &nomClient, int idClient);  // Ajoutez cette déclaration
 
 public:

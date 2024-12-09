@@ -1,58 +1,67 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-#include "clients.h"
-#include "messagerie.h" // Include the Messagerie header
+#include<commande.h>
 #include <QMainWindow>
-#include <QLabel>
-#include <QPushButton>
-#include <QFileDialog>
-#include <QImage>
-#include <QPixmap>
-
-
-
+#include "generateurqrcode.h"
+//définir des éléments relatifs à l'interface utilisateur générée automatiquement par Qt Designer
 namespace Ui {
 class MainWindow;
 }
 
 class MainWindow : public QMainWindow
 {
+    //Elle permet à Qt de gérer l'envoi de signaux et la connexion avec des slots.
     Q_OBJECT
 
 public:
+    // constructeur de la classe MainWindow
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
 private slots:
 
-    void on_pushButton_9_clicked();
+    void on_pushButton_5_clicked();
+
+    void on_pushButton_7_clicked();
+
+    void on_pushButton_8_clicked();
+    //tri radio boutons
+    void on_RBdtdebut_2_toggled(bool checked);
+
+    void on_RBdf_2_toggled(bool checked);
+
+    void on_RBnom_2_toggled(bool checked);
+    //bouton bech ta5tar croissant wala decroissant
+    void on_RBC_2_clicked();
+
+    void on_RBdc_2_clicked();
+
+    void on_pushButton_15_clicked();
+
+    void on_pushButton_6_clicked();
+
+    void on_pushButton_14_clicked();
+
+    void on_pushButton_11_clicked();
 
     void on_pushButton_12_clicked();
-    void on_tableView_activated(const QModelIndex &index);
 
-    void on_pushButton_13_clicked();
+    void onTabCommandeClicked(const QModelIndex &index);
 
-    void on_pushButton_16_clicked();
 
-    void on_pushButton_18_clicked();
+    void on_pdfbt_clicked();
 
-    void on_modifier_clicked();
+    void on_mailbtn_clicked();
 
-    void on_modifier_2_clicked();
-    void on_buttonsearch_clicked();
-    void on_buttonpdff_clicked();
-    void on_historiqueButton_clicked();
-    void navigateToPage(int pageIndex);
+    void on_order_clicked();
 
+    void on_clients_clicked();
 
 private:
     Ui::MainWindow *ui;
-    Messagerie *messagerieWidget; // Add this member variable
-    clients ctmp;
-    bool fid;
-    bool sortByFidelity;
-    QSqlQueryModel *model;
-
+   commande ctmp;
+   //variable bech nestaamlou mbaad f main
+   QString etattrie;
 };
 
 #endif // MAINWINDOW_H
