@@ -1,0 +1,17 @@
+INPUT(
+./release\QrCodeGenerator.o
+./release\qrcodegen.o
+./release\arduino.o
+./release\calendarwidget.o
+./release\commande.o
+./release\main.o
+./release\mainwindow.o
+./release\connection.o
+./release\generateurpdf.o
+./release\generateurqrcode.o
+./release\Emailsender.o
+./release\qrc_logo.o
+./release\moc_calendarwidget.o
+./release\moc_mainwindow.o
+./release\moc_Emailsender.o
+);
